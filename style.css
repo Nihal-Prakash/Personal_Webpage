@@ -135,3 +135,11 @@ body {
 html {
   scroll-behavior: smooth;
 }
+
+#life img {
+  display: block;           /* remove inline gaps */
+  max-width: 100%;          /* never overflow its container */
+  height: 400px;
+  width: 371pc;           /* maintain aspect ratio */
+}
+
