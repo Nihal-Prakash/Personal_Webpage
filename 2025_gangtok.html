@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Future of Web Design: A 3D Perspective</title>
+    <script loading="lazy" src="https://cdn.tailwindcss.com"></script>
+    <script loading="lazy" src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* Basic Setup */
+        html {
+            scroll-behavior: smooth;
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            padding: 0;
+            overflow-y: auto;
+            color: #E0E0E0;
+            background-color: #111827;
+        }
+
+        /* Custom Scrollbar Hiding */
+        html, body {
+            scrollbar-width: none;       /* Firefox */
+            -ms-overflow-style: none;    /* IE10+ */
+        }
+        html::-webkit-scrollbar,
+        body::-webkit-scrollbar {
+            width: 0;
+            background: transparent;
+        }
+
+        /* Single 3D Background Canvas */
+        #webgl-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+        }
+
+        /* Content Styling */
+        .content-scroller {
+            position: relative;
+            z-index: 1; /* Keep content above canvas */
+            width: 100%;
+            overflow-x: hidden;
+        }
+
+        .floating-content {
+            transition: transform 0.3s ease-out;
+            backdrop-filter: blur(10px) saturate(180%);
+            -webkit-backdrop-filter: blur(10px) saturate(180%);
+            background-color: rgba(17, 24, 39, 0.75);
+            border: 1px solid rgba(255, 255, 255, 0.125);
+        }
+
+        .prose h1, .prose h2, .prose h3 { color: #FFF; }
+        .prose p, .prose ul, .prose blockquote { color: #D1D5DB; }
+        .prose a { color: #6366F1; text-decoration: none; }
+        .prose a:hover { text-decoration: underline; }
+        
+        /* Gallery Section Styles */
+        .gallery-image-wrapper {
+            overflow: hidden;
+            border-radius: 0.75rem;
+        }
+        .gallery-image-wrapper img {
+            transition: transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+        .gallery-image-wrapper:hover img {
+            transform: scale(1.05);
+        }
+    </style>
+</head>
+<body class="bg-gray-900">
+
+    <!-- Single fixed background canvas for the combined 3D scene -->
+    <canvas id="webgl-canvas"></canvas>
+
+    <!-- Header Section -->
+    <header class="h-screen w-full flex flex-col items-center justify-center text-center relative z-10 p-4">
+        <h1 class="text-4xl md:text-6xl lg:text-7xl font-bold text-white tracking-tight leading-tight mb-4" style="text-shadow: 0px 2px 10px rgba(0,0,0,0.5);">
+            Sikkim
+        </h1>
+        <p class="text-lg md:text-xl text-gray-300 max-w-3xl mx-auto" style="text-shadow: 0px 2px 5px rgba(0,0,0,0.5);">
+            From mountains to valleys, From sky to water
+        </p>
+        <p class="mt-4 text-sm text-gray-400 animate-pulse">[ Move your mouse to interact with the crystal ]</p>
+    </header>
+
+    <!-- Scrollable content container -->
+    <div class="content-scroller">
+        <main class="w-full py-16 sm:py-24 flex items-center justify-center">
+            <div id="floating-card" class="floating-content max-w-2xl w-full rounded-2xl shadow-2xl p-8 md:p-12 my-16 md:my-24">
+                <article class="prose prose-invert prose-lg max-w-none text-gray-300">
+                    <p>
+                        This trip was my post-JEE getaway—a very well-deserved and much-needed vacation after a relentless five-year academic marathon.
+                    </p>
+                    <h3 class="text-2xl font-semibold text-white mt-8 mb-4">Gangtok</h3>
+                    <p>
+                        The adventure began in Gangtok, vibrant and bustling, offering a lively contrast to my previous months spent glued to textbooks. Explored MJ Road, where I enjoyed delicious Thai food, indulged in some nostalgia by buying Pokémon cards 😅, and even took an exhilarating ride on the ropeway. Visited West Point Mall, and stumbled upon a particularly nerve-wracking sidewalk with one side missing 😭 (did I mention heights aren't really my thing?).
+                    </p>
+                    <h3 class="text-2xl font-semibold text-white mt-8 mb-4">Majitar</h3>
+                    <p>
+                        Majitar offered a completely different experience—a serene valley setting contrasting sharply with Gangtok's peak views. Checked out the beautiful campus of SMIT, explored nearby Singtam, and had quite a nerve-racking journey back when it started pouring heavily. The next day made up for it, however, with an epic, relaxing day at a swimming pool resort.
+                    </p>
+                    <blockquote class="border-l-4 border-indigo-400 pl-4 py-2 my-6">
+                        <footer class="text-sm text-gray-500">20 June 2025 - 24 June 2025</footer>
+                    </blockquote>
+                </article>
+            </div>
+        </main>
+
+        <!-- Pictures Section -->
+        <section id="pictures-section" class="w-full py-16 sm:py-24 bg-gray-900/50">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="text-center mb-20">
+                    <h2 class="text-4xl md:text-5xl font-bold text-white">Gallery</h2>
+                    <p class="text-lg text-gray-400 mt-2">A collection of moments from Gangtok.</p>
+                </div>
+
+                <div class="space-y-24">
+
+                    <!-- Gallery Unit 1 (Images 1-3) -->
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+                        <div class="grid grid-cols-2 gap-4">
+                            <div class="col-span-2 gallery-image-wrapper">
+                                <img loading="lazy" src="assets/Gangtok/(1).jpg" alt="Gangtok Scene 1" class="w-full h-full object-cover rounded-xl shadow-lg" onerror="this.onerror=null;this.loading="lazy" src='https://placehold.co/600x400/1a202c/ffffff?text=Image+Not+Found';">
+                            </div>
+                            <div class="gallery-image-wrapper">
+                                <img loading="lazy" src="assets/Gangtok/(2).jpg" alt="Gangtok Scene 2" class="w-full h-full object-cover rounded-xl shadow-lg" onerror="this.onerror=null;this.loading="lazy" src='https://placehold.co/300x200/1a202c/ffffff?text=Image+Not+Found';">
+                            </div>
+                            <div class="gallery-image-wrapper">
+                                <img loading="lazy" src="assets/Gangtok/(3).jpg" alt="Gangtok Scene 3" class="w-full h-full object-cover rounded-xl shadow-lg" onerror="this.onerror=null;this.loading="lazy" src='https://placehold.co/300x200/1a202c/ffffff?text=Image+Not+Found';">
+                            </div>
+                        </div>
+                        <div class="prose prose-invert prose-lg">
+                            <h3>The Sky & The Valley</h3>
+                            <p>The journey begins with breathtaking views, where the sky meets the earth in a spectacular display of nature's grandeur. Each turn reveals a new perspective, a different shade of green and blue.</p>
+                        </div>
+                    </div>
+
+                    <!-- Gallery Unit 2 (Images 4-6) -->
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+                        <div class="prose prose-invert prose-lg lg:order-last">
+                            <h3>Gangtok</h3>
+                            <p>Nestled within the mountains lies a city that blends modern life with ancient traditions. The architecture tells a story of culture, resilience, and harmony with the surrounding landscape.</p>
+                        </div>
+                        <div class="grid grid-cols-2 gap-4">
+                             <div class="col-span-2 gallery-image-wrapper">
+                                <img loading="lazy" src="assets/Gangtok/(4).jpg" alt="Gangtok Scene 4" class="w-full h-full object-cover rounded-xl shadow-lg" onerror="this.onerror=null;this.loading="lazy" src='https://placehold.co/600x400/1a202c/ffffff?text=Image+Not+Found';">
+                            </div>
+                            <div class="gallery-image-wrapper">
+                                <img loading="lazy" src="assets/Gangtok/(5).jpg" alt="Gangtok Scene 5" class="w-full h-full object-cover rounded-xl shadow-lg" onerror="this.onerror=null;this.loading="lazy" src='https://placehold.co/300x200/1a202c/ffffff?text=Image+Not+Found';">
+                            </div>
+                            <div class="gallery-image-wrapper">
+                                <img loading="lazy" src="assets/Gangtok/(6).jpg" alt="Gangtok Scene 6" class="w-full h-full object-cover rounded-xl shadow-lg" onerror="this.onerror=null;this.loading="lazy" src='https://placehold.co/300x200/1a202c/ffffff?text=Image+Not+Found';">
+                            </div>
+                        </div>
+                    </div>
+
+                     <!-- Gallery Unit 3 (Images 7-9) -->
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+                        <div class="grid grid-cols-2 gap-4">
+                            <div class="col-span-2 gallery-image-wrapper">
+                                <img loading="lazy" src="assets/Gangtok/(7).jpg" alt="Gangtok Scene 7" class="w-full h-full object-cover rounded-xl shadow-lg" onerror="this.onerror=null;this.loading="lazy" src='https://placehold.co/600x400/1a202c/ffffff?text=Image+Not+Found';">
+                            </div>
+                            <div class="gallery-image-wrapper">
+                                <img loading="lazy" src="assets/Gangtok/(8).jpg" alt="Gangtok Scene 8" class="w-full h-full object-cover rounded-xl shadow-lg" onerror="this.onerror=null;this.loading="lazy" src='https://placehold.co/300x200/1a202c/ffffff?text=Image+Not+Found';">
+                            </div>
+                            <div class="gallery-image-wrapper">
+                                <img loading="lazy" src="assets/Gangtok/(9).jpg" alt="Gangtok Scene 9" class="w-full h-full object-cover rounded-xl shadow-lg" onerror="this.onerror=null;this.loading="lazy" src='https://placehold.co/300x200/1a202c/ffffff?text=Image+Not+Found';">
+                            </div>
+                        </div>
+                        <div class="prose prose-invert prose-lg">
+                            <h3>Cultural Threads</h3>
+                            <p>Discover the vibrant culture woven into the fabric of daily life. From colorful prayer flags to serene monasteries, every corner holds a piece of the region's rich spiritual heritage.</p>
+                        </div>
+                    </div>
+
+                    <!-- Gallery Unit 4 (Images 10-12) -->
+                     <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+                        <div class="prose prose-invert prose-lg lg:order-last">
+                            <h3>Singtam</h3>
+                            <p>Moments of peace by the water, where the reflections tell a story of tranquility. The flowing rivers are the lifeblood of this serene paradise.</p>
+                        </div>
+                        <div class="grid grid-cols-2 gap-4">
+                             <div class="col-span-2 gallery-image-wrapper">
+                                <img loading="lazy" src="assets/Gangtok/(10).jpg" alt="Gangtok Scene 10" class="w-full h-full object-cover rounded-xl shadow-lg" onerror="this.onerror=null;this.loading="lazy" src='https://placehold.co/600x400/1a202c/ffffff?text=Image+Not+Found';">
+                            </div>
+                            <div class="gallery-image-wrapper">
+                                <img loading="lazy" src="assets/Gangtok/(11).jpg" alt="Gangtok Scene 11" class="w-full h-full object-cover rounded-xl shadow-lg" onerror="this.onerror=null;this.loading="lazy" src='https://placehold.co/300x200/1a202c/ffffff?text=Image+Not+Found';">
+                            </div>
+                            <div class="gallery-image-wrapper">
+                                <img loading="lazy" src="assets/Gangtok/(12).jpg" alt="Gangtok Scene 12" class="w-full h-full object-cover rounded-xl shadow-lg" onerror="this.onerror=null;this.loading="lazy" src='https://placehold.co/300x200/1a202c/ffffff?text=Image+Not+Found';">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Gallery Unit 5 (Images 13-15) -->
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+                        <div class="grid grid-cols-2 gap-4">
+                            <div class="col-span-2 gallery-image-wrapper">
+                                <img loading="lazy" src="assets/Gangtok/tech2.jpg" alt="Gangtok Scene 7" class="w-full h-full object-cover rounded-xl shadow-lg" onerror="this.onerror=null;this.loading="lazy" src='https://placehold.co/600x400/1a202c/ffffff?text=Image+Not+Found';">
+                            </div>
+                            <div class="gallery-image-wrapper">
+                                <img loading="lazy" src="assets/Gangtok/tech1.jpg" alt="Gangtok Scene 8" class="w-full h-full object-cover rounded-xl shadow-lg" onerror="this.onerror=null;this.loading="lazy" src='https://placehold.co/300x200/1a202c/ffffff?text=Image+Not+Found';">
+                            </div>
+                            <div class="gallery-image-wrapper">
+                                <img loading="lazy" src="assets/Gangtok/tech3.jpg" alt="Gangtok Scene 9" class="w-full h-full object-cover rounded-xl shadow-lg" onerror="this.onerror=null;this.loading="lazy" src='https://placehold.co/300x200/1a202c/ffffff?text=Image+Not+Found';">
+                            </div>
+                        </div>
+                        <div class="prose prose-invert prose-lg">
+                            <h3>5G Technologies</h3>
+                            <p>Development and research of 5G technologies, a digital future being made amidst the lap of the Lesser Himalayas </p>
+                        </div>
+                    </div>
+
+                    <!-- Gallery Unit 6 (Images 16-18) -->
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+                        <div class="prose prose-invert prose-lg lg:order-last">
+                            <h3>Majitar</h3>
+                            <p>Nestled in the lush hills of Sikkim, blends tranquil riverscapes with a vibrant student-driven energy, where tradition meets quiet modernity.</p>
+                        </div>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div class="col-span-2 gallery-image-wrapper">
+                                <img loading="lazy" src="assets/Gangtok/scenic3.jpg" alt="Gangtok Scene 7" class="w-full h-full object-cover rounded-xl shadow-lg" onerror="this.onerror=null;this.loading="lazy" src='https://placehold.co/600x400/1a202c/ffffff?text=Image+Not+Found';">
+                            </div>
+                            <div class="gallery-image-wrapper">
+                                <img loading="lazy" src="assets/Gangtok/scenic1.jpg" alt="Gangtok Scene 8" class="w-full h-full object-cover rounded-xl shadow-lg" onerror="this.onerror=null;this.loading="lazy" src='https://placehold.co/300x200/1a202c/ffffff?text=Image+Not+Found';">
+                            </div>
+                            <div class="gallery-image-wrapper">
+                                <img loading="lazy" src="assets/Gangtok/scenic2.jpg" alt="Gangtok Scene 9" class="w-full h-full object-cover rounded-xl shadow-lg" onerror="this.onerror=null;this.loading="lazy" src='https://placehold.co/300x200/1a202c/ffffff?text=Image+Not+Found';">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Gallery Unit 7 (Images 19-21) -->
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+                        <div class="grid grid-cols-2 gap-4">
+                            <div class="col-span-2 gallery-image-wrapper">
+                                <img loading="lazy" src="assets/Gangtok/fam2.jpg" alt="Gangtok Scene 7" class="w-full h-full object-cover rounded-xl shadow-lg" onerror="this.onerror=null;this.loading="lazy" src='https://placehold.co/600x400/1a202c/ffffff?text=Image+Not+Found';">
+                            </div>
+                            <div class="gallery-image-wrapper">
+                                <img loading="lazy" src="assets/Gangtok/fam3.jpg" alt="Gangtok Scene 8" class="w-full h-full object-cover rounded-xl shadow-lg" onerror="this.onerror=null;this.loading="lazy" src='https://placehold.co/300x200/1a202c/ffffff?text=Image+Not+Found';">
+                            </div>
+                            <div class="gallery-image-wrapper">
+                                <img loading="lazy" src="assets/Gangtok/fam1.jpg" alt="Gangtok Scene 9" class="w-full h-full object-cover rounded-xl shadow-lg" onerror="this.onerror=null;this.loading="lazy" src='https://placehold.co/300x200/1a202c/ffffff?text=Image+Not+Found';">
+                            </div>
+                        </div>
+                        <div class="prose prose-invert prose-lg">
+                            <h3>All with Family</h3>
+                            <p>It's not often we get to experince such scenic beauty with our loved ones, but when we can it becomes something special</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <footer class="bg-gray-900 text-center py-8">
+            <p class="text-gray-500">&copy; 2025 Creative Insights. All rights reserved.</p>
+        </footer>
+    </div>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+
+            // --- Combined 3D Scene ---
+            const initCombinedScene = () => {
+                const canvas = document.getElementById('webgl-canvas');
+                if (!canvas) {
+                    console.error("Canvas element not found!");
+                    return;
+                }
+
+                // Core Three.js components
+                let scene, camera, renderer, clock;
+                
+                // Scene objects
+                let crystal, particles;
+
+                // Mouse tracking
+                let mouseX = 0, mouseY = 0;
+                let windowHalfX = window.innerWidth / 2;
+                let windowHalfY = window.innerHeight / 2;
+
+                // 1. Scene and Camera Setup
+                scene = new THREE.Scene();
+                camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+                camera.position.z = 5;
+
+                // 2. Renderer Setup
+                renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true, alpha: true });
+                renderer.setSize(window.innerWidth, window.innerHeight);
+                renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+                // 3. Clock for Animations
+                clock = new THREE.Clock();
+
+                // --- Create Icosahedron (Crystal) ---
+                const createCrystal = () => {
+                    const geometry = new THREE.IcosahedronGeometry(1.5, 0);
+                    const material = new THREE.MeshStandardMaterial({
+                        color: 0xa6d733,
+                        emissive: 0x9bc92e,
+                        metalness: 0.8,
+                        roughness: 0.2,
+                        flatShading: true,
+                        transparent: true,
+                        opacity: 0.8
+                    });
+                    crystal = new THREE.Mesh(geometry, material);
+                    scene.add(crystal);
+                    
+                    const wireframeGeo = new THREE.IcosahedronGeometry(1.51, 0);
+                    const wireframeMat = new THREE.MeshBasicMaterial({ color: 0x272822, wireframe: true, transparent: true, opacity: 0.2 });
+                    const wireframe = new THREE.Mesh(wireframeGeo, wireframeMat);
+                    crystal.add(wireframe);
+                };
+
+                // --- Create Background Particles ---
+                const createParticles = () => {
+                    const particlesCount = 5000;
+                    const posArray = new Float32Array(particlesCount * 3);
+                    for (let i = 0; i < particlesCount * 3; i++) {
+                        posArray[i] = (Math.random() - 0.5) * 20; // Increased spread
+                    }
+
+                    const particlesGeometry = new THREE.BufferGeometry();
+                    particlesGeometry.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
+                    const particlesMaterial = new THREE.PointsMaterial({ size: 0.008, color: 0x818cf8, transparent: true, opacity: 0.5 });
+                    particles = new THREE.Points(particlesGeometry, particlesMaterial);
+                    scene.add(particles);
+                };
+
+                // --- Setup Lighting ---
+                const setupLights = () => {
+                    const ambientLight = new THREE.AmbientLight(0xffffff, 0.1);
+                    scene.add(ambientLight);
+                    const pointLight = new THREE.PointLight(0xec4899, 1, 100);
+                    pointLight.position.set(5, 5, 5);
+                    scene.add(pointLight);
+                    const pointLight2 = new THREE.PointLight(0x60a5fa, 1, 100);
+                    pointLight2.position.set(-5, -5, -5);
+                    scene.add(pointLight2);
+                };
+
+                // --- Event Handlers ---
+                const onWindowResize = () => {
+                    windowHalfX = window.innerWidth / 2;
+                    windowHalfY = window.innerHeight / 2;
+                    camera.aspect = window.innerWidth / window.innerHeight;
+                    camera.updateProjectionMatrix();
+                    renderer.setSize(window.innerWidth, window.innerHeight);
+                    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+                };
+
+                const onDocumentMouseMove = (event) => {
+                    mouseX = (event.clientX - windowHalfX);
+                    mouseY = (event.clientY - windowHalfY);
+                };
+
+                // --- Animation Loop ---
+                const animate = () => {
+                    requestAnimationFrame(animate);
+
+                    const elapsedTime = clock.getElapsedTime();
+
+                    // Animate particles
+                    if (particles) {
+                        particles.rotation.y = elapsedTime * 0.05;
+                        particles.rotation.x = elapsedTime * 0.02;
+                    }
+
+                    // Animate crystal
+                    if (crystal) {
+                        crystal.rotation.x += 0.0005;
+                        crystal.rotation.y += 0.001;
+                    }
+                    
+                    // Animate camera based on mouse
+                    camera.position.x += (mouseX / 200 - camera.position.x) * 0.05;
+                    camera.position.y += (-mouseY / 200 - camera.position.y) * 0.05;
+                    camera.lookAt(scene.position);
+
+                    // Render the single scene
+                    renderer.render(scene, camera);
+                };
+
+                // --- Initialize Everything ---
+                createCrystal();
+                createParticles();
+                setupLights();
+                
+                // Add event listeners
+                window.addEventListener('resize', onWindowResize, false);
+                document.addEventListener('mousemove', onDocumentMouseMove, false);
+                
+                // Start animation
+                animate();
+            };
+
+            // --- Floating Card Parallax Effect ---
+            const setupFloatingCardParallax = () => {
+                const floatingCard = document.getElementById('floating-card');
+                if (floatingCard) {
+                    document.addEventListener('mousemove', (e) => {
+                        const { clientX, clientY } = e;
+                        const { innerWidth, innerHeight } = window;
+                        const rotateY = (clientX / innerWidth - 0.5) * 10;
+                        const rotateX = -(clientY / innerHeight - 0.5) * 10;
+                        floatingCard.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale3d(1, 1, 1)`;
+                    });
+                    document.body.addEventListener('mouseleave', () => {
+                        floatingCard.style.transform = `perspective(1000px) rotateX(0) rotateY(0) scale3d(1, 1, 1)`;
+                    });
+                }
+            };
+            
+            // Initialize all components
+            initCombinedScene();
+            setupFloatingCardParallax();
+        });
+    </script>
+</body>
+</html>
